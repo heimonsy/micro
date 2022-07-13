@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package relation;
 
-option java_generic_services = true;
-
 message FollowUserRequest {
     uint64 user_id = 1;
     uint64 follow_user_id = 2;

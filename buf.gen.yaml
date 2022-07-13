@@ -3,12 +3,8 @@ managed:
   enabled: true
   go_package_prefix:
     default: github.com/heimonsy/micro/gen/proto/go/apis
-  java_package_prefix:
-    default: com.github.heimonsy.micro.apis
 
 plugins:
-  - name: java
-    out: gen/proto/java
   - name: go
     out: gen/proto/go/apis
     opt: paths=source_relative
