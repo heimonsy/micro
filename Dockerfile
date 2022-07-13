@@ -1,4 +1,4 @@
-FROM golang:1.18.4 as builder
+FROM golang:1.18.4-alpine3.16 as builder
 
 WORKDIR /go/micro
 
@@ -11,7 +11,8 @@ RUN go build
 FROM alpine:3.16.0
 
 # https://stackoverflow.com/questions/34729748/installed-go-binary-not-found-in-path-on-alpine-linux-docker
-RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+# RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+# 改为使用 golang:1.18.4-alpine3.16 后没问题
 
 WORKDIR /app
 
