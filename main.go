@@ -5,7 +5,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/heimonsy/micro/gen/proto/go/apis/user"
+	userapi "github.com/heimonsy/micro/gen/proto/go/apis/user"
+	"github.com/heimonsy/micro/service/user"
 	"google.golang.org/grpc"
 )
 
@@ -23,7 +24,7 @@ func run() error {
 	}
 
 	server := grpc.NewServer()
-	user.RegisterUserServiceServer(server, &UserService{})
+	userapi.RegisterUserServiceServer(server, &user.UserService{})
 	log.Println("Listening on", listenOn)
 	if err := server.Serve(listener); err != nil {
 		return fmt.Errorf("failed to serve gRPC server: %w", err)
