@@ -3,9 +3,9 @@ package relation
 import (
 	"context"
 
-	"github.com/emirpasic/gods/sets/hashset"
 	relationapi "github.com/heimonsy/micro/gen/proto/go/apis/relation"
 	userapi "github.com/heimonsy/micro/gen/proto/go/apis/user"
+	"github.com/heimonsy/micro/tools"
 	"github.com/heimonsy/micro/tools/clix"
 )
 
@@ -13,8 +13,8 @@ import (
 type relationService struct {
 	UserCli userapi.UserServiceClient
 
-	following map[uint64]*hashset.Set
-	follower  map[uint64]*hashset.Set
+	following map[uint64]tools.Set[uint64]
+	follower  map[uint64]tools.Set[uint64]
 }
 
 func NewRelationService() (relationapi.RelationServiceServer, error) {
@@ -25,24 +25,24 @@ func NewRelationService() (relationapi.RelationServiceServer, error) {
 
 	return &relationService{
 		UserCli:   userCli,
-		following: make(map[uint64]*hashset.Set),
-		follower:  make(map[uint64]*hashset.Set),
+		following: make(map[uint64]tools.Set[uint64]),
+		follower:  make(map[uint64]tools.Set[uint64]),
 	}, nil
 }
 
-func (s *relationService) getFollowingSet(userID uint64) *hashset.Set {
+func (s *relationService) getFollowingSet(userID uint64) tools.Set[uint64] {
 	following := s.following[userID]
 	if following == nil {
-		following = hashset.New()
+		following = tools.NewConcurrentSafeMapSet[uint64]()
 		s.following[userID] = following
 	}
 	return following
 }
 
-func (s *relationService) getFollowerSet(userID uint64) *hashset.Set {
+func (s *relationService) getFollowerSet(userID uint64) tools.Set[uint64] {
 	follower := s.follower[userID]
 	if follower == nil {
-		follower = hashset.New()
+		follower = tools.NewConcurrentSafeMapSet[uint64]()
 		s.follower[userID] = follower
 	}
 	return follower
@@ -81,12 +81,8 @@ func (s *relationService) GetFollowers(
 	ctx context.Context,
 	req *relationapi.GetFollowersRequest,
 ) (*relationapi.GetFollowersResponse, error) {
-	var followers []uint64
-	for _, v := range s.getFollowerSet(req.GetUserId()).Values() {
-		followers = append(followers, v.(uint64))
-	}
 	return &relationapi.GetFollowersResponse{
-		Followers: followers,
+		Followers: s.getFollowerSet(req.GetUserId()).Values(),
 	}, nil
 }
 
@@ -95,11 +91,7 @@ func (s *relationService) GetFollowings(
 	ctx context.Context,
 	req *relationapi.GetFollowingsRequest,
 ) (*relationapi.GetFollowingsResponse, error) {
-	var followings []uint64
-	for _, v := range s.getFollowingSet(req.GetUserId()).Values() {
-		followings = append(followings, v.(uint64))
-	}
 	return &relationapi.GetFollowingsResponse{
-		Followings: followings,
+		Followings: s.getFollowingSet(req.GetUserId()).Values(),
 	}, nil
 }
