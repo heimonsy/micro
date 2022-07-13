@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package relation;
+
+message FollowUserRequest {
+    uint64 user_id = 1;
+    uint64 follow_user_id = 2;
+}
+
+message FollowUserResponse {}
+
+message GetFollowingsRequest {
+    uint64 user_id = 1;
+}
+
+message GetFollowingsResponse {
+    uint64 user_id = 1;
+}
+
+message GetFollowersRequest {
+    uint64 user_id = 1;
+}
+
+message GetFollowersResponse {
+    uint64 user_id = 1;
+}
+
+service RelationService {
+    // FollowUser
+    rpc FollowUser(FollowUserRequest) returns (FollowUserResponse);
+    // GetFollowers
+    rpc GetFollowers(GetFollowersRequest) returns (GetFollowersResponse);
+    // GetFollowings
+    rpc GetFollowings(GetFollowingsRequest) returns (GetFollowingsResponse);
+}

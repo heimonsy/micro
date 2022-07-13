@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package user;
+
+enum Gender {
+    GENDER_UNSPECIFIED = 0;
+    GENDER_MALE = 1;
+    GENDER_FEMALE = 2;
+    GENDER_OTHERS = 3;
+}
+
+message RegisterRequest {
+    string username = 1;
+    string nickname = 2;
+    Gender gender = 3;
+}
+
+message RegisterResponse {
+    uint64 user_id = 1;
+}
+
+message GetUserRequest {
+    oneof by {
+        uint64 user_id = 1;
+        string username = 2;
+    }
+}
+
+message GetUserResponse {
+    uint64 user_id = 1;
+    string username = 2;
+    string nickname = 3;
+    Gender gender = 4;
+}
+
+message PushRequest {
+    uint64 user_id = 1;
+}
+
+
+message Event {
+    string id = 1;
+    string msg = 2;
+}
+
+message PushResponse {
+    Event event = 1;
+}
+
+service UserService {
+    // Register
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    // GetUser
+    rpc GetUser(GetUserRequest) returns (GetUserResponse);
+    // Push
+    rpc Push(PushRequest) returns (stream PushResponse);
+}
