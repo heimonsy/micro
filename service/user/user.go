@@ -42,7 +42,7 @@ func (s *UserService) Register(ctx context.Context, req *userapi.RegisterRequest
 	s.uidMap[user.UserID] = user
 	s.usernameMap[user.Username] = user
 
-	return &userapi.RegisterResponse{}, nil
+	return &userapi.RegisterResponse{UserId: user.UserID}, nil
 }
 
 func (s *UserService) GetUser(ctx context.Context, req *userapi.GetUserRequest) (*userapi.GetUserResponse, error) {

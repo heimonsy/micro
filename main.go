@@ -10,6 +10,7 @@ import (
 	userapi "github.com/heimonsy/micro/gen/proto/go/apis/user"
 	"github.com/heimonsy/micro/service/relation"
 	"github.com/heimonsy/micro/service/user"
+	"github.com/heimonsy/micro/tools/md"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )
@@ -32,7 +33,14 @@ var rootCmd = &cobra.Command{
 			log.Fatalf("failed to listen on %s: %v", listenOn, err)
 		}
 
-		server := grpc.NewServer()
+		server := grpc.NewServer(
+			grpc.ChainUnaryInterceptor([]grpc.UnaryServerInterceptor{
+				md.MakeUnaryServerInterceptor(),
+			}...),
+			grpc.ChainStreamInterceptor([]grpc.StreamServerInterceptor{
+				md.MakeStreamServerInterceptor(),
+			}...),
+		)
 		switch args[0] {
 		case "user":
 			userapi.RegisterUserServiceServer(server, &user.UserService{})
