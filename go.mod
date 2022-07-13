@@ -3,7 +3,6 @@ module github.com/heimonsy/micro
 go 1.18
 
 require (
-	github.com/emirpasic/gods v1.18.1
 	github.com/golang/protobuf v1.5.2
 	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.7.1
