@@ -53,7 +53,7 @@ spec:
       # - name: regcred-vpc
       containers:
       - name: micro-user
-        image: heimonsy/micro:test-02
+        image: heimonsy/micro:test-03
         args:
         - micro
         - user

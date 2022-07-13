@@ -9,7 +9,12 @@ import (
 )
 
 func NewUserClient() (user.UserServiceClient, error) {
-	cli, err := grpc.DialContext(context.Background(), "micro-user:8080", grpc.WithInsecure())
+	cli, err := grpc.DialContext(
+		context.Background(),
+		"dns:///micro-user-headless:8080",
+		grpc.WithInsecure(),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +22,12 @@ func NewUserClient() (user.UserServiceClient, error) {
 }
 
 func NewRelationClient() (relation.RelationServiceClient, error) {
-	cli, err := grpc.DialContext(context.Background(), "micro-relation:8080", grpc.WithInsecure())
+	cli, err := grpc.DialContext(
+		context.Background(),
+		"dns:///micro-relation-headless:8080",
+		grpc.WithInsecure(),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`),
+	)
 	if err != nil {
 		return nil, err
 	}
