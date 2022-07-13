@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: micro-user
+  name: micro-relation
   labels:
-    micro: micro-user
+    micro: micro-relation
 spec:
   selector:
-    micro: micro-user
+    micro: micro-relation
   ports:
   - port: 8080
     protocol: TCP
@@ -17,14 +17,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: micro-user-headless
+  name: micro-relation-headless
   labels:
-    micro: micro-user-headless
+    micro: micro-relation-headless
 spec:
   # 用来做 grpc 客户端负载均衡
   clusterIP: None
   selector:
-    micro: micro-user
+    micro: micro-relation
   ports:
   - port: 8080
     targetPort: 8080
@@ -34,29 +34,29 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  micro-user
+  name:  micro-relation
   labels:
-    micro: micro-user
+    micro: micro-relation
 spec:
   replicas: 2
   selector:
     matchLabels:
-      micro: micro-user
+      micro: micro-relation
   template:
     metadata:
-      name: micro-user
+      name: micro-relation
       labels:
-        micro: micro-user
+        micro: micro-relation
     spec:
       # imagePullSecrets:
       # - name: regcred
       # - name: regcred-vpc
       containers:
-      - name: micro-user
+      - name: micro-relation
         image: heimonsy/micro:test-02
         args:
         - micro
-        - user
+        - relation
         - --listen
         - 0.0.0.0:8080
         ports:
