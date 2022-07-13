@@ -37,11 +37,15 @@ var rootCmd = &cobra.Command{
 		case "user":
 			userapi.RegisterUserServiceServer(server, &user.UserService{})
 		case "relation":
-			relationapi.RegisterRelationServiceServer(server, &relation.RelationService{})
+			service, err := relation.NewRelationService()
+			if err != nil {
+				log.Fatalf("new relation service error: %v", err)
+			}
+			relationapi.RegisterRelationServiceServer(server, service)
 		default:
 			log.Fatalf("invalid service: %s", args[0])
 		}
-		log.Printf("Service [%s] listening on %s", args[0], listenOn)
+		log.Printf("service [%s] listening on %s", args[0], listenOn)
 		if err := server.Serve(listener); err != nil {
 			log.Fatalf("failed to serve gRPC server: %v", err)
 		}

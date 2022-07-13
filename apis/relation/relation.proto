@@ -14,7 +14,7 @@ message GetFollowingsRequest {
 }
 
 message GetFollowingsResponse {
-    uint64 user_id = 1;
+    repeated uint64 followings = 2;
 }
 
 message GetFollowersRequest {
@@ -22,7 +22,7 @@ message GetFollowersRequest {
 }
 
 message GetFollowersResponse {
-    uint64 user_id = 1;
+    repeated uint64 followers = 2;
 }
 
 service RelationService {

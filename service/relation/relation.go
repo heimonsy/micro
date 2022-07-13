@@ -3,23 +3,103 @@ package relation
 import (
 	"context"
 
+	"github.com/emirpasic/gods/sets/hashset"
 	relationapi "github.com/heimonsy/micro/gen/proto/go/apis/relation"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	userapi "github.com/heimonsy/micro/gen/proto/go/apis/user"
+	"github.com/heimonsy/micro/tools/clix"
 )
 
-// RelationService implements the PetStoreService API.
-type RelationService struct {
+// relationService implements the PetStoreService API.
+type relationService struct {
+	UserCli userapi.UserServiceClient
+
+	following map[uint64]*hashset.Set
+	follower  map[uint64]*hashset.Set
 }
 
-func (s *RelationService) FollowUser(context.Context, *relationapi.FollowUserRequest) (*relationapi.FollowUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FollowUser not implemented")
+func NewRelationService() (relationapi.RelationServiceServer, error) {
+	userCli, err := clix.NewUserClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return &relationService{
+		UserCli:   userCli,
+		following: make(map[uint64]*hashset.Set),
+		follower:  make(map[uint64]*hashset.Set),
+	}, nil
 }
 
-func (s *RelationService) GetFollowers(context.Context, *relationapi.GetFollowersRequest) (*relationapi.GetFollowersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFollowers not implemented")
+func (s *relationService) getFollowingSet(userID uint64) *hashset.Set {
+	following := s.following[userID]
+	if following == nil {
+		following = hashset.New()
+		s.following[userID] = following
+	}
+	return following
 }
 
-func (s *RelationService) GetFollowings(context.Context, *relationapi.GetFollowingsRequest) (*relationapi.GetFollowingsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFollowings not implemented")
+func (s *relationService) getFollowerSet(userID uint64) *hashset.Set {
+	follower := s.follower[userID]
+	if follower == nil {
+		follower = hashset.New()
+		s.follower[userID] = follower
+	}
+	return follower
+}
+
+// FollowUser
+func (s *relationService) FollowUser(
+	ctx context.Context,
+	req *relationapi.FollowUserRequest,
+) (*relationapi.FollowUserResponse, error) {
+	userResp, err := s.UserCli.GetUser(ctx, &userapi.GetUserRequest{
+		By: &userapi.GetUserRequest_UserId{
+			UserId: req.GetUserId(),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	followUserResp, err := s.UserCli.GetUser(ctx, &userapi.GetUserRequest{
+		By: &userapi.GetUserRequest_UserId{
+			UserId: req.GetFollowUserId(),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	s.getFollowingSet(userResp.UserId).Add(followUserResp.UserId)
+	s.getFollowerSet(followUserResp.UserId).Add(userResp.UserId)
+
+	return &relationapi.FollowUserResponse{}, nil
+}
+
+// GetFollowers
+func (s *relationService) GetFollowers(
+	ctx context.Context,
+	req *relationapi.GetFollowersRequest,
+) (*relationapi.GetFollowersResponse, error) {
+	var followers []uint64
+	for _, v := range s.getFollowerSet(req.GetUserId()).Values() {
+		followers = append(followers, v.(uint64))
+	}
+	return &relationapi.GetFollowersResponse{
+		Followers: followers,
+	}, nil
+}
+
+// GetFollowings
+func (s *relationService) GetFollowings(
+	ctx context.Context,
+	req *relationapi.GetFollowingsRequest,
+) (*relationapi.GetFollowingsResponse, error) {
+	var followings []uint64
+	for _, v := range s.getFollowingSet(req.GetUserId()).Values() {
+		followings = append(followings, v.(uint64))
+	}
+	return &relationapi.GetFollowingsResponse{
+		Followings: followings,
+	}, nil
 }
