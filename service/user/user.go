@@ -18,8 +18,12 @@ func (s *UserService) Register(context.Context, *userapi.RegisterRequest) (*user
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 
-func (s *UserService) GetUser(context.Context, *userapi.GetUserRequest) (*userapi.GetUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+func (s *UserService) GetUser(ctx context.Context, req *userapi.GetUserRequest) (*userapi.GetUserResponse, error) {
+	return &userapi.GetUserResponse{
+		UserId:   req.GetUserId(),
+		Nickname: "heimonsy",
+		Gender:   userapi.Gender_GENDER_MALE,
+	}, nil
 }
 
 func (s *UserService) Push(*userapi.PushRequest, userapi.UserService_PushServer) error {

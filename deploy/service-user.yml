@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-user
+  labels:
+    micro: micro-user
+spec:
+  selector:
+    micro: micro-user
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-user-headless
+  labels:
+    micro: micro-user-headless
+spec:
+  # 用来做 grpc 客户端负载均衡
+  clusterIP: None
+  selector:
+    micro: micro-user
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  micro-user
+  labels:
+    micro: micro-user
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      micro: micro-user
+  template:
+    metadata:
+      name: micro-user
+      labels:
+        micro: micro-user
+    spec:
+      # imagePullSecrets:
+      # - name: regcred
+      # - name: regcred-vpc
+      containers:
+      - name: micro-user
+        image: heimonsy/micro:test-01
+        args:
+        - micro
+        - user
+        - --listen
+        - 0.0.0.0:8080
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
